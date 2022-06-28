@@ -11,12 +11,14 @@ namespace Battleship11
         //Declare and initialize 10x10 board for both player 1 and 2
         public static String[,] p2Board = new String[10,10];
         public static String[,] p1Board = new String[10,10];
-
+        public static String[,] pBoard;
+        //enum Board { p1Board, p2Board}
         //This is the board after player 1 and 2 start attacking eachother
         static String[,] p2Hit = new String[10,10];
         static String[,] p1Hit = new String[10,10];
 
-        
+        public enum Orientation { Vertical, Horizontal }
+
         static int hitCounterP1 = 0;
         static int hitCounterP2 = 0;
 
@@ -32,6 +34,7 @@ namespace Battleship11
         static Boolean Winner_player1 = false;
         static Boolean Winner_player2 = false;
 
+        
 
         static void initializeVariables()
         {
@@ -64,7 +67,65 @@ namespace Battleship11
             Console.ReadLine();
         }
        
-
+        public static void PutShip(int shiplength, string ship, int playernum)
+        {
+            Orientation orientation = new Random().Next(2) == 1 ? Orientation.Vertical : Orientation.Horizontal;
+            int row, col;
+            if (playernum == 1)
+                pBoard = p1Board;
+            else
+                pBoard = p2Board;
+            if(orientation == Orientation.Horizontal)
+            {
+                row = new Random().Next(10);
+                col = new Random().Next(10 - shiplength);
+                while (ShipAlreadyInRange(row, col, shiplength, orientation, pBoard))
+                {
+                    row = new Random().Next(10);
+                    col = new Random().Next(10 - shiplength);
+                }
+                for (int i = 0; i < shiplength; i++)
+                {                  
+                    pBoard[row, col + i] = ship;
+                 }
+            }
+            else
+            {
+                row = new Random().Next(10 - shiplength);
+                col = new Random().Next(10);
+                while (ShipAlreadyInRange(row, col, shiplength, orientation, pBoard))
+                {
+                    row = new Random().Next(10 - shiplength);
+                    col = new Random().Next(10);
+                }
+                for (int i = 0; i < shiplength; i++)
+                {
+                    pBoard[row + i, col] = ship;
+                }
+                   
+            }
+        }
+        public static bool ShipAlreadyInRange(int row, int col, int length, Orientation orientation, string[,] board)
+        {
+            if (orientation == Orientation.Horizontal)
+            {
+                for (int i = col; i < col + length; i++)
+                {
+                    if (board[row, i] != null)
+                        return true;
+                }
+                return false;
+            }
+            else
+            {
+                for (int i = row; i < row + length; i++)
+                {
+                    if (board[i, col] != null)
+                        return true;
+                }
+                return false;
+            }
+        }
         public static void PutShipOnBoard1()
         {
             //Console.Clear();
@@ -296,9 +357,15 @@ namespace Battleship11
         static void Play()
         {
             Console.Clear();
-            PutShipOnBoard1();
+            PutShip(2, "B", 1);
+            PutShip(3, "D", 1);
+            PutShip(3, "C", 1);
+            drawBoard("P1");
             Console.Clear();
-            PutShipOnBoard2();
+            PutShip(2, "B", 2);
+            PutShip(3, "D", 2);
+            PutShip(3, "C", 2);
+            drawBoard("P2");
 
             while (!Winner_player1 && !Winner_player2)
             {
@@ -366,7 +433,7 @@ namespace Battleship11
             }
 
         }
-        static void DeclareWinner()
+        public static void DeclareWinner()
         {
             Console.Clear();
             Console.WriteLine("Game ended!");
